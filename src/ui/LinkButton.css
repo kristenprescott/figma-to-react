@@ -1,6 +1,10 @@
 .button {
   padding: 0;
-  color: blue;
+  /* color: blue; */
+  color: #007555;
+  /* background-color: var(--figma-color-bg);
+  color: var(--figma-color-text); */
+  border: 2px #ddd solid;
   border: none;
   background-color: transparent;
 }

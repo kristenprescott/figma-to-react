@@ -1,5 +1,7 @@
 export function isImageNode(node: SceneNode): boolean {
   // 下部に Vector しか存在しないものは画像と判定する
+  // Translation(Japanese):
+  // "If there is only Vector at the bottom, it is judged as an image"
   if ('children' in node && node.children.length > 0) {
     let hasOnlyVector = true
     node.children.forEach((child) => {

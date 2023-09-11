@@ -2,7 +2,7 @@ import { capitalizeFirstLetter } from './utils/stringUtils'
 import { Tag } from './buildTagTree'
 import { buildClassName } from './utils/cssUtils'
 
-type CssStyle = 'css' | 'styled-components'
+type CssStyle = 'css' | 'styled-components' | 'scss'
 
 function buildSpaces(baseSpaces: number, level: number) {
   let spacesStr = ''
@@ -39,6 +39,7 @@ function getTagName(tag: Tag, cssStyle: CssStyle) {
     if (tag.isText) {
       return 'p'
     }
+    // TODO: Inputs?
     return guessTagName(tag.name)
   }
   return tag.isText ? 'Text' : tag.name.replace(/\s/g, '')
@@ -46,10 +47,10 @@ function getTagName(tag: Tag, cssStyle: CssStyle) {
 
 function getClassName(tag: Tag, cssStyle: CssStyle) {
   if (cssStyle === 'css' && !tag.isComponent) {
-    if (tag.isImg) {
-      return ''
-    }
-    return ` className="${buildClassName(tag.css.className)}"`
+    // if (tag.isImg) {
+    //   return ` className={styles['${buildClassName(tag.css.className)}']}`
+    // }
+    return ` className={styles['${buildClassName(tag.css.className)}']}`
   }
   return ''
 }
@@ -86,10 +87,48 @@ function buildJsxString(tag: Tag, cssStyle: CssStyle, level: number) {
   return openingTag + childTags + closingTag
 }
 
+function formatTagName(tag: Tag): string {
+  return `${capitalizeFirstLetter(tag.name.replace(/\s/g, ''))}`
+}
+
+function useClient(): string {
+  return `'use client'`
+}
+
+function addImports(tag: Tag): string {
+  return `${useClient()}
+import { FunctionComponent } from 'react';
+import styles from './${formatTagName(tag)}.module.css';
+`
+}
+
+function formatInterfaceName(tag: Tag): string {
+  return `${formatTagName(tag)}Props`
+}
+
+function addPropsInterface(tag: Tag): string {
+  return `
+interface ${formatInterfaceName(tag)} {
+  example: string;
+}
+`
+}
+
+function addExportStatement(tag: Tag): string {
+  return `
+  
+export default ${formatTagName(tag)}`
+}
+
+
+
 export function buildCode(tag: Tag, css: CssStyle): string {
-  return `const ${capitalizeFirstLetter(tag.name.replace(/\s/g, ''))}: React.VFC = () => {
+  return `${addImports(tag)} ${addPropsInterface(tag)} 
+const ${formatTagName(tag)}: FunctionComponent<${formatInterfaceName(tag)}> = (
+  props: ${formatInterfaceName(tag)},
+) => {
   return (
 ${buildJsxString(tag, css, 0)}
   )
-}`
+}${addExportStatement(tag)}`
 }

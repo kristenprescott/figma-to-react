@@ -8,7 +8,10 @@ import { buildCssString, CssStyle } from './buildCssString'
 import { UserComponentSetting } from './userComponentSetting'
 import { TextCount } from './getCssDataForTag'
 
-figma.showUI(__html__, { width: 480, height: 480 })
+// TODO: If there is a way to detect screen size, add position:
+// figma.showUI(__html__, { width: 700, height: 825, title: "Figma React Codegen" })
+figma.showUI(__html__, { width: 700, height: 825, title: "Figma React Codegen", themeColors: true })
+// figma.showUI(__html__, { width: 650, height: 850, themeColors: true, title: "Figma React Codegen", position: { x: "300", y: "300"} })
 
 const selectedNodes = figma.currentPage.selection
 

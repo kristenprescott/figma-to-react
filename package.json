@@ -3,16 +3,16 @@
   "version": "1.0.0",
   "description": "Your Figma plugin",
   "main": "code.js",
+  "author": "",
+  "license": "",
   "scripts": {
-    "dev": "webpack --mode=development --watch",
+    "dev": "TSC_COMPILE_ON_ERROR=true webpack --mode=development --watch",
     "build": "webpack --mode=production",
     "prettier": "prettier --write",
     "lint": "eslint 'src/**/*.{ts,tsx}'",
     "lint:fix": "eslint 'src/**/*.{ts,tsx}' --fix",
     "test": "jest"
   },
-  "author": "",
-  "license": "",
   "dependencies": {
     "@vanilla-extract/css": "^1.0.0",
     "html-webpack-inline-source-plugin": "0.0.10",
