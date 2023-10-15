@@ -7,6 +7,7 @@ import styles from './ui.css'
 import Spacer from './ui/Spacer'
 import UserComponentSettingList from './ui/UserComponentSettingList'
 import { UserComponentSetting } from './userComponentSetting'
+import { saveAs } from 'file-saver'
 
 function escapeHtml(str: string) {
   str = str.replace(/&/g, '&amp;')
@@ -105,26 +106,40 @@ const App: React.VFC = () => {
   const [selectedCssStyle, setCssStyle] = React.useState<CssStyle>('css')
   const [selectedUnitType, setUnitType] = React.useState<UnitType>('px')
   const [userComponentSettings, setUserComponentSettings] = React.useState<UserComponentSetting[]>([])
-  const textCodeRef = React.useRef<HTMLTextAreaElement>(null)
-  const textCssRef = React.useRef<HTMLTextAreaElement>(null)
+  const textReactRef = React.useRef<HTMLTextAreaElement>(null)
+  const textStylesRef = React.useRef<HTMLTextAreaElement>(null)
 
-  const copyCodeToClipboard = () => {
-    if (textCodeRef.current) {
-      textCodeRef.current.select()
-      document.execCommand('copy')
+  const copyReactToClip = () => {
+    if (textReactRef.current) {
+      textReactRef.current.select()
+      if (!navigator.clipboard) {
+        document.execCommand('copy')
 
-      const msg: messageTypes = { type: 'notify-copy-success' }
-      parent.postMessage(msg, '*')
+        const msg: messageTypes = { type: 'notify-copy-success' }
+        parent.postMessage(msg, '*')
+      } else {
+        navigator.clipboard.writeText(textReactRef.current.value)
+
+        const msg: messageTypes = { type: 'notify-copy-success' }
+        parent.postMessage(msg, '*')
+      }
     }
   }
 
-  const copyCssToClipboard = () => {
-    if (textCssRef.current) {
-      textCssRef.current.select()
-      document.execCommand('copy')
+  const copyStylesToClip = () => {
+    if (textStylesRef.current) {
+      textStylesRef.current.select()
+      if (!navigator.clipboard) {
+        document.execCommand('copy')
 
-      const msg: messageTypes = { type: 'notify-copy-success' }
-      parent.postMessage(msg, '*')
+        const msg: messageTypes = { type: 'notify-copy-success' }
+        parent.postMessage(msg, '*')
+      } else {
+        navigator.clipboard.writeText(textStylesRef.current.value)
+
+        const msg: messageTypes = { type: 'notify-copy-success' }
+        parent.postMessage(msg, '*')
+      }
     }
   }
 
@@ -162,26 +177,24 @@ const App: React.VFC = () => {
   // const syntaxCssHighlightedCode = React.useMemo(() => insertCssSyntaxHighlightText(escapeHtml(cssCode)), [cssCode])
   const syntaxCssHighlightedCode = React.useMemo(() => insertSyntaxHighlightText(escapeHtml(cssCode)), [cssCode])
 
-  // const exportReactComponent = () => {
-  //   // TODO: Save code to computer
-  //   if (textCodeRef.current) {
-  //     const textData: string = textCodeRef.current.select()
-  //     const data = new Blob([textData as BlobPart], { type: 'text/plain'})
-  //     // const fileData = JSON.stringify(textCodeRef.current)
-  //     // const blob = new Blob([fileData], { type: 'text/plain' })
-  //     // const url = URL.createObjectURL(blob)
-  //     // const link = document.createElement('a')
-  //     // link.download = 'user-info.json'
-  //     // link.href = url
-  //     // link.click()
+  function exportReactComponent(): void {
+    if (textReactRef.current) {
+      textReactRef.current.select()
+      const fileText = textReactRef.current.value.toString()
+      const fileName = 'MyComponent.tsx'
 
-  //     // const msg: messageTypes = { type: 'notify-save-success' }
-  //     // parent.postMessage(msg, '*')
-  //   }
-  // }
+      saveAs(new Blob([fileText], { type: 'text/plain;charset=utf-8' }), fileName)
+    }
+  }
 
-  const exportCssModule = () => {
-    // TODO: Save css to computer
+  function exportStyleModule(): void {
+    if (textStylesRef.current) {
+      textStylesRef.current.select()
+      const fileText = textStylesRef.current.value.toString()
+      const fileName = selectedCssStyle === 'css' ? 'MyComponent.modules.css' : selectedCssStyle === 'scss' ? 'MyComponent.modules.scss' : ''
+
+      saveAs(new Blob([fileText], { type: 'text/plain;charset=utf-8' }), fileName)
+    }
   }
 
   // set initial values taken from figma storage
@@ -201,49 +214,35 @@ const App: React.VFC = () => {
     <div style={{ width: '100%' }}>
       <div className={styles.code}>
         <h2 className={styles.codeHeading}>React Component</h2>
-        <textarea className={styles.textareaForClipboard} ref={textCodeRef} value={code} readOnly />
+        <textarea className={styles.textareaForClipboard} ref={textReactRef} value={code} readOnly />
+
         <p className={styles.generatedCode} dangerouslySetInnerHTML={{ __html: syntaxHighlightedCode }} />
 
         <Spacer axis="vertical" size={12} />
 
         <div className={styles.buttonLayout}>
-          <button className={styles.copyButton} onClick={copyCodeToClipboard}>
+          <button className={styles.copyButton} onClick={copyReactToClip}>
             Copy React to clipboard
           </button>
           <Spacer axis="horizontal" size={24} />
-          <button
-            disabled
-            // className={`${styles.exportButton}`}
-            className={`${styles.exportButton} ${styles.disabledButton}`}
-            // onClick={exportReactComponent}
-            onClick={() => {
-              console.log('export react component')
-            }}
-          >
-            {/* <a download="test.tsx" href={downloadLink}> */}
+
+          <button className={styles.exportButton} onClick={exportReactComponent}>
             Export React code
-            {/* </a> */}
           </button>
         </div>
 
         <h2 className={styles.codeHeading}>{selectedCssStyle.toUpperCase()} module</h2>
-        <textarea className={styles.textareaForClipboard} ref={textCssRef} value={cssCode} readOnly />
+        <textarea className={styles.textareaForClipboard} ref={textStylesRef} value={cssCode} readOnly />
         <p className={styles.generatedCode} dangerouslySetInnerHTML={{ __html: syntaxCssHighlightedCode }} />
 
         <Spacer axis="vertical" size={12} />
 
         <div className={styles.buttonLayout}>
-          <button className={styles.copyButton} onClick={copyCssToClipboard}>
+          <button className={styles.copyButton} onClick={copyStylesToClip}>
             Copy {selectedCssStyle.toUpperCase()} to clipboard
           </button>
           <Spacer axis="horizontal" size={24} />
-          <button
-            disabled
-            className={`${styles.exportButton} ${styles.disabledButton}`}
-            onClick={() => {
-              console.log('export css module')
-            }}
-          >
+          <button className={styles.exportButton} onClick={exportStyleModule}>
             Export {selectedCssStyle.toUpperCase()} module
           </button>
         </div>
