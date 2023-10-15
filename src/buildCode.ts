@@ -1,10 +1,9 @@
 import { capitalizeFirstLetter } from './utils/stringUtils'
 import { Tag } from './buildTagTree'
 import { buildClassName } from './utils/cssUtils'
+import { CssStyle } from './buildCssString'
 
-type CssStyle = 'css' | 'styled-components' | 'scss'
-
-function buildSpaces(baseSpaces: number, level: number) {
+export function buildSpaces(baseSpaces: number, level: number) {
   let spacesStr = ''
 
   for (let i = 0; i < baseSpaces; i++) {
@@ -60,9 +59,12 @@ function buildPropertyString(prop: Tag['properties'][number]) {
 }
 
 function buildChildTagsString(tag: Tag, cssStyle: CssStyle, level: number): string {
-  if (tag.children.length > 0) {
+  const hasChildren = tag.children.length > 0
+
+  if (hasChildren) {
     return '\n' + tag.children.map((child) => buildJsxString(child, cssStyle, level + 1)).join('\n')
   }
+
   if (tag.isText) {
     return `${tag.textCharacters}`
   }
@@ -73,6 +75,7 @@ function buildJsxString(tag: Tag, cssStyle: CssStyle, level: number) {
   if (!tag) {
     return ''
   }
+
   const spaceString = buildSpaces(4, level)
   const hasChildren = tag.children.length > 0
 
@@ -119,8 +122,6 @@ function addExportStatement(tag: Tag): string {
   
 export default ${formatTagName(tag)}`
 }
-
-
 
 export function buildCode(tag: Tag, css: CssStyle): string {
   return `${addImports(tag)} ${addPropsInterface(tag)} 

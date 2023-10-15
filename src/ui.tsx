@@ -88,7 +88,7 @@ function insertCssSyntaxHighlightText(text: string) {
 
 const cssStyles: { value: CssStyle; label: string }[] = [
   { value: 'css', label: 'CSS' },
-  { value: 'scss', label: 'SCSS(future)' },
+  { value: 'scss', label: 'SCSS' },
   { value: 'styled-components', label: 'styled-components' }
 ]
 
@@ -226,7 +226,7 @@ const App: React.VFC = () => {
           </button>
         </div>
 
-        <h2 className={styles.codeHeading}>CSS module</h2>
+        <h2 className={styles.codeHeading}>{selectedCssStyle.toUpperCase()} module</h2>
         <textarea className={styles.textareaForClipboard} ref={textCssRef} value={cssCode} readOnly />
         <p className={styles.generatedCode} dangerouslySetInnerHTML={{ __html: syntaxCssHighlightedCode }} />
 
@@ -234,7 +234,7 @@ const App: React.VFC = () => {
 
         <div className={styles.buttonLayout}>
           <button className={styles.copyButton} onClick={copyCssToClipboard}>
-            Copy CSS to clipboard
+            Copy {selectedCssStyle.toUpperCase()} to clipboard
           </button>
           <Spacer axis="horizontal" size={24} />
           <button
@@ -244,7 +244,7 @@ const App: React.VFC = () => {
               console.log('export css module')
             }}
           >
-            Export CSS module
+            Export {selectedCssStyle.toUpperCase()} module
           </button>
         </div>
       </div>
